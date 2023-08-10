@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block head_title %}callback{% endblock %}
+
+{% block content %}
+<main class="mt-5 pt-4">
+    <div class="container dark-grey-text mt-5">
+        {% if bank_record.is_success %}
+        <div>
+            <h1 class="text-success">Payment successfull</h1>
+        </div>
+        <h3>Order details: <a href="{% url 'core:order-detail' %}?pk={{ order.pk }}">Show details</a></h3>
+        <h3>Tracking code: {{ bank_record.tracking_code }}</h3>
+        <h3>Total amount: {{ bank_record.amount }}</h3>
+        {% else %}
+        <h1 class="text-danger">Payment Failed</h1>
+        <h3>Tracking code: {{ bank_record.tracking_code }}</h3>
+        <h3>Refrence number: <strong>{{ bank_record.reference_number }}</strong></h3>
+        {% endif %}
+    </div>
+</main>
+{% endblock content %}

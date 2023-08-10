@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load cart_template_tags %}
+
+{% comment %} <body class="grey lighten-3"> {% endcomment %}
+{% block haed %}
+
+{% endblock %}
+
+{% block content %}
+  <!--Main layout-->
+  <main class="mt-5 pt-4">
+    <div class="container wow fadeIn">
+
+      <!-- Heading -->
+      {% comment %} <h2 class="my-5 h2">Checkout Form</h2>
+        <form action="{% url 'core:checkout' %}" method="POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type='submit' class='btn btn-default'>Submit</button>
+        </form> {% endcomment %}
+      <!--Grid row-->
+      <div class="row">
+
+        <!--Grid column-->
+        <div class="col-md-8 mb-4">
+
+          <!--Card-->
+          <div class="card">
+            
+            <!--Card content-->
+            <form class="card-body" method="POST" action="{% url 'core:checkout' %}">
+              {% csrf_token %}
+              <div class="hideable_checkout_form"> 
+              <!--Grid row-->
+                <div class="row">
+
+                    <!--Grid column-->
+                    <div class="col-lg-4 col-md-12 mb-4">
+                    <label for="province">Province</label>
+                    {{ form.province }}
+                    {% comment %} <select class="custom-select d-block w-100" id="country" required>
+                        <option value="">Choose...</option>
+                        <option>Tehran</option>
+                    </select> {% endcomment %}
+
+                    </div>
+                    <!--Grid column-->
+
+                    <!--Grid column-->
+                    <div class="col-lg-4 col-md-6 mb-4">
+
+                    <label for="city">City</label>
+                    {{ form.city }}
+
+                    </div>
+                    <!--Grid column-->
+                
+                    <!--Grid column-->
+                    <div class="col-lg-4 col-md-6 mb-4">
+
+                    <label for="postal-code">Postal Code</label>
+                    {{form.postal_code }}
+
+                    </div>
+                    <!--Grid column-->
+
+                    </div>
+                    <!--Grid row-->
+
+                    <!--full address-->
+                    <div class="md-form mb-5">
+                        {{ form.full_address }}
+                        <label for="full-address" class="">Full Address</label>
+                    </div>
+
+                    <div class="custom-checkbox">
+                        <input type="checkbox" class="save_address" id="save_address" name="save_address">
+                        <label class="save_address" for="save_address">Save address as a default </label>
+                    </div>
+                </div>
+                {% if SHOW_ADDRESS %}
+                <div class="custom-checkbox">
+                    <input type="checkbox" class="use_saved_address" id="use_saved_address" name="use_saved_address">
+                    <label class="use_saved_address" for="use_saved_address">use saved address: {{ address }} </label>
+                </div>
+                {% endif %}
+                <hr>
+              <div class="d-block my-3">
+                {% comment %} <div class="custom-control custom-radio">
+                  <input id="debit" name="paymentMethod" type="radio" class="custom-control-input" required>
+                  <label class="custom-control-label" for="debit">idpay</label>
+                </div> {% endcomment %}
+                {{ form.payment_method }}
+              </div>
+              <hr class="mb-4">
+              <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to checkout</button>
+
+            </form>
+
+          </div>
+          <!--/.Card-->
+
+        </div>
+        <!--Grid column-->
+
+        <!--Grid column-->
+        <div class="col-md-4 mb-4">
+
+          <!-- Heading -->
+          <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Your cart</span>
+            <span class="badge badge-secondary badge-pill">{{ request.user|get_order_items_count }}</span>
+          </h4>
+
+          <!-- Cart -->
+          <ul class="list-group mb-3 z-depth-1 overflow-auto" style="max-height:420px;">
+            {% for order_item in object.items.all %}
+            <li class="list-group-item d-flex justify-content-between lh-condensed">
+              <div>
+                <h6 class="my-0">{{ order_item.item.title }}</h6>
+                <small class="text-muted">quantity: {{ order_item.quantity }}</small>
+              </div>
+              <span class="text-muted">${{ order_item.get_effective_price }}</span>
+            </li>
+            {% endfor %}
+
+            {% if object.code %}
+            <li class="list-group-item d-flex justify-content-between bg-light">
+                <div class="text-success">
+                  <h6 class="my-0">Promo code</h6>
+                  <small>{{ object.code.code }}</small>
+                </div>
+                <span class="text-success">-${{ object.code.amount }}</span>
+              </li>
+            {% endif %}
+
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Total (USD)</span>
+              <strong>$ {{ object.get_total_price }}</strong>
+              <strong>IRR {{ object.get_IRR_price }}</strong>
+            </li>
+          </ul>
+          <!-- Cart -->
+
+          <!-- Promo code -->
+          <form class="card p-2" action="{% url 'core:add-promo-code' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Promo code" aria-label="Recipient's username" aria-describedby="basic-addon2" name="promo_code">
+              <div class="input-group-append">
+                <button class="btn btn-secondary btn-md waves-effect m-0" type="submit">Redeem</button>
+              </div>
+            </div>
+          </form>
+          <!-- Promo code -->
+
+        </div>
+        <!--Grid column-->
+
+      </div>
+      <!--Grid row-->
+
+    </div>
+  </main>
+  <script>document.body.setAttribute("class", "grey lighten-3")</script>
+{% endblock %}
+
+<!-- {% block extra_script %}
+<script>
+    var hideable_checkout_form = $(".hideable_checkout_form")
+    // selects first input element that has neme use_saved_address
+    var use_saved_address = document.querySelector("input[name=use_saved_address]")
+    use_saved_address.addEventListener('change', function() {
+        if (this.checked){
+            hideable_checkout_form.hide();
+        }
+        else {
+            hideable_checkout_form.show();
+        }
+    })
+    
+
+</script>
+{% endblock extra_script %} -->
+

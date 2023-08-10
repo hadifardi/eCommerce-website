@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="mt-5 pt-4">
+    <div class="container dark-grey-text mt-5">
+        <div>
+        <h3> your orders list<h3>
+        </div>
+        {% for order in object_list reversed %}
+
+        <p>
+            <a href="{% url 'core:order-detail' %}?pk={{ order.pk }}">{{ order }}</a>
+        </p>
+        {% empty %}
+        <p>you didn't ordered anything</p>
+        <a href="/" class="btn btn-primary float-right">Continue Shopping</a>
+        {% endfor %}
+    </div>
+</main>
+{% endblock content %}

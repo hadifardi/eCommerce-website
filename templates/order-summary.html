@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br><br><br>
+<main>
+    <div class="container">  
+    <div class="table-responsive">
+        <h2>Order Summary</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Title</th>
+                <th scope="col">Price</th>
+                <th scope="col">Discount</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Total Price</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order_item in object.items.all %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ order_item.item.title }}</td>
+                <td>{{ order_item.item.price }}</td>
+                <td>{{ order_item.item.discount }}</td>
+                <td>
+                    <a href="{% url 'core:decrease-item-quantity' order_item.item.slug %}"><i class="fas fa-minus mr-2"></i></a>
+                    {{ order_item.quantity }}
+                    <a href="{% url 'core:add-to-cart' order_item.item.slug %}"><i class="fas fa-plus ml-2"></i></a>
+                </td>
+                <td>
+                    {{ order_item.get_effective_price }}
+                    <a href="{% url 'core:remove-from-cart' order_item.item.slug %}"><i style="color:darkred;" class="fas fa-trash float-right"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colsapn="6"> Your cart is empty<td>
+            </tr>
+            <tr>
+                <td colspan="6">
+                    <a href="/" class="btn btn-primary float-right">Continue Shopping</a>
+                </td>
+            </tr>
+            {% endfor %}
+
+            {% if object.get_total_price and object.get_total_price > 0 %}
+            {% if object.code %}         
+            <tr>
+                <th colspan="5"><storng>Promo Code</strong></th>
+                <td><strong>-$ {{ object.code.amount }}</strong>
+            </tr>
+            {% endif %}
+            
+            <tr>
+                {% comment %} colspan is like 'merge cell' in Excel
+                 {% endcomment %}
+                <th colspan="5">Total Price</th>
+                <td><b>{{ object.get_total_price }}</b></td>
+            </tr>
+            
+            <tr>
+                <td colspan="6">
+                    <a href="{% url 'core:checkout' %}" class="btn btn-default float-right ml-2">Proceed to Checkout</a>
+                    <a href="/" class="btn btn-primary float-right">Continue Shopping</a>
+                </td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+    </div>
+</main>
+{% endblock %}
